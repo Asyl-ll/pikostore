@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Piko Store — Баскетбольная экипировка</title>
+
+  <!-- Google Fonts: Barlow Condensed (display) + Manrope (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,800;0,900;1,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Barlow Condensed"', 'sans-serif'],
+            body: ['Manrope', 'sans-serif'],
+          },
+          colors: {
+            orange: {
+              400: '#FF7A1A',
+              500: '#FF6000',
+              600: '#E55500',
+            },
+            dark: {
+              900: '#0A0A0A',
+              800: '#111111',
+              700: '#1A1A1A',
+              600: '#242424',
+              500: '#2E2E2E',
+            },
+          },
+          aspectRatio: {
+            '3/5': '3 / 5',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ===== BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: #0A0A0A;
+      color: #F0F0F0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== NOISE TEXTURE OVERLAY ===== */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.35;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #FF6000; border-radius: 3px; }
+
+    /* ===== NAV ===== */
+    .nav-logo span { color: #FF6000; }
+
+    /* ===== TAB SYSTEM ===== */
+    .tab-btn {
+      position: relative;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #666;
+      padding: 0.5rem 0;
+      transition: color 0.3s ease;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 0; height: 2px;
+      background: #FF6000;
+      transition: width 0.3s ease;
+    }
+    .tab-btn.active { color: #FF6000; }
+    .tab-btn.active::after { width: 100%; }
+    .tab-btn:hover { color: #ccc; }
+
+    /* ===== TAB PANELS ===== */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ===== FADE-IN-UP ANIMATION ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fiu {
+      opacity: 0;
+      animation: fadeInUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    /* Stagger delays for grid children */
+    .stagger-grid > *:nth-child(1)  { animation-delay: 0.05s; }
+    .stagger-grid > *:nth-child(2)  { animation-delay: 0.12s; }
+    .stagger-grid > *:nth-child(3)  { animation-delay: 0.19s; }
+    .stagger-grid > *:nth-child(4)  { animation-delay: 0.26s; }
+    .stagger-grid > *:nth-child(5)  { animation-delay: 0.33s; }
+    .stagger-grid > *:nth-child(6)  { animation-delay: 0.40s; }
+
+    /* ===== HERO ===== */
+    .hero-bg {
+      background: radial-gradient(ellipse 70% 60% at 60% 40%, rgba(255,96,0,0.18) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 80% at 20% 80%, rgba(255,96,0,0.07) 0%, transparent 60%),
+                  #0A0A0A;
+    }
+    .hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-style: italic;
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+    }
+    .hero-accent { color: #FF6000; }
+    .hero-line {
+      display: block;
+      overflow: hidden;
+    }
+    .hero-line span {
+      display: block;
+      animation: slideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .hero-line:nth-child(1) span { animation-delay: 0.1s; }
+    .hero-line:nth-child(2) span { animation-delay: 0.22s; }
+    .hero-line:nth-child(3) span { animation-delay: 0.34s; }
+    @keyframes slideUp {
+      from { transform: translateY(110%); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ===== STAT NUMBERS ===== */
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(3.5rem, 8vw, 6rem);
+      line-height: 1;
+      color: #FF6000;
+      letter-spacing: -0.02em;
+    }
+
+    /* ===== PRODUCT CARD ===== */
+    .product-card {
+      background: #1A1A1A;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(255,96,0,0.15);
+      border-color: rgba(255,96,0,0.3);
+    }
+    .product-img-wrap {
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #242424;
+      position: relative;
+    }
+    .product-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+    }
+    .product-card:hover .product-img-wrap img {
+      transform: scale(1.06);
+    }
+    .img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px;
+      color: #444;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .img-placeholder svg { opacity: 0.3; }
+
+    /* ===== REVIEW CARD ===== */
+    .review-card {
+      aspect-ratio: 3 / 5;
+      background: #1A1A1A;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .review-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(255,96,0,0.12);
+    }
+    .review-screenshot {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .review-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px;
+      color: #444;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: 'Barlow Condensed', sans-serif;
+      background: linear-gradient(160deg, #1a1a1a 0%, #222 100%);
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    /* ===== CTA BUTTON ===== */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #FF6000;
+      color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.75rem;
+      border-radius: 6px;
+      border: none; cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-primary:hover {
+      background: #FF7A1A;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(255,96,0,0.35);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent;
+      color: #FF6000;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.6rem 1.4rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255,96,0,0.5);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      justify-content: center;
+      text-decoration: none;
+    }
+    .btn-ghost:hover {
+      background: rgba(255,96,0,0.1);
+      border-color: #FF6000;
+    }
+
+    /* ===== ADVANTAGE CARD ===== */
+    .adv-card {
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .adv-card:hover {
+      border-color: rgba(255,96,0,0.3);
+      transform: translateY(-3px);
+    }
+    .adv-icon {
+      width: 48px; height: 48px;
+      background: rgba(255,96,0,0.12);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+      color: #FF6000;
+    }
+
+    /* ===== CATEGORY LABEL ===== */
+    .category-pill {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #FF6000;
+      background: rgba(255,96,0,0.12);
+      padding: 3px 10px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* ===== SECTION TITLES ===== */
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+    .section-title .accent { color: #FF6000; }
+
+    /* ===== DIVIDER LINE ===== */
+    .divider { border-top: 1px solid rgba(255,255,255,0.07); }
+
+    /* ===== FORM ===== */
+    .form-input {
+      width: 100%;
+      background: #1A1A1A;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #F0F0F0;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-input:focus { border-color: #FF6000; }
+    .form-input::placeholder { color: #555; }
+    textarea.form-input { resize: vertical; min-height: 100px; }
+
+    /* Stars */
+    .star-rating { display: flex; gap: 6px; }
+    .star {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #333;
+      transition: color 0.15s, transform 0.1s;
+    }
+    .star:hover, .star.active { color: #FF6000; transform: scale(1.15); }
+
+    /* ===== FOOTER ===== */
+    .footer-social a {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      background: #1A1A1A;
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      color: #888;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      text-decoration: none;
+    }
+    .footer-social a:hover {
+      background: rgba(255,96,0,0.15);
+      color: #FF6000;
+      border-color: rgba(255,96,0,0.4);
+    }
+
+    /* ===== TOAST NOTIFICATION ===== */
+    .toast {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      background: #1A1A1A;
+      border: 1px solid rgba(255,96,0,0.4);
+      color: #F0F0F0;
+      padding: 0.85rem 1.5rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-family: 'Manrope', sans-serif;
+      z-index: 1000;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 640px) {
+      .tab-btn { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===================== NAVBAR ===================== -->
+<nav class="sticky top-0 z-50 bg-dark-900/90 backdrop-blur-md border-b border-white/[0.06]">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+
+    <!-- Logo -->
+    <div class="nav-logo font-display font-black text-xl uppercase tracking-widest text-white">
+      Piko<span>.</span>Store
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="flex items-center gap-6 sm:gap-10 mx-auto sm:mr-0" id="tabNav" role="tablist">
+      <button class="tab-btn active" data-tab="about" role="tab" aria-selected="true">
+        О магазине
+      </button>
+      <button class="tab-btn" data-tab="products" role="tab" aria-selected="false">
+        Товары
+      </button>
+      <button class="tab-btn" data-tab="reviews" role="tab" aria-selected="false">
+        Отзывы
+      </button>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ===================== TAB 1: О МАГАЗИНЕ ===================== -->
+<section id="tab-about" class="tab-panel active" role="tabpanel">
+
+  <!-- HERO -->
+  <div class="hero-bg min-h-[90vh] flex items-center relative overflow-hidden">
+    <div class="absolute right-[-10%] top-[10%] w-[500px] h-[500px] rounded-full border border-orange-500/10 pointer-events-none" aria-hidden="true"></div>
+    <div class="absolute right-[2%] top-[20%] w-[320px] h-[320px] rounded-full border border-orange-500/10 pointer-events-none" aria-hidden="true"></div>
+
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+         style="background-image: linear-gradient(rgba(255,96,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,96,0,0.03) 1px, transparent 1px); background-size: 60px 60px;">
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-24 w-full">
+      <div class="max-w-3xl">
+
+        <div class="inline-flex items-center gap-2 text-orange-500 mb-6 animate-fiu" style="animation-delay:0s">
+          <span class="w-8 h-px bg-orange-500"></span>
+          <span class="font-body text-sm font-600 uppercase tracking-widest">Баскетбольная экипировка</span>
+        </div>
+
+        <h1 class="hero-title text-white mb-6" style="font-size: clamp(3.5rem, 10vw, 8rem);">
+          <span class="hero-line"><span>ИГРАЙ</span></span>
+          <span class="hero-line"><span>КАК <span class="hero-accent">ЛЕГЕНДА</span></span></span>
+          <span class="hero-line"><span>ОДЕНЬСЯ КАК ОНА</span></span>
+        </h1>
+
+        <p class="text-gray-400 text-base sm:text-lg mb-10 max-w-lg font-body animate-fiu" style="animation-delay:0.45s; line-height:1.7;">
+          Piko Store — всё для баскетбола: от кроссовок до формы. Качество, которое не подводит на площадке.
+        </p>
+
+        <div class="flex flex-wrap gap-4 animate-fiu" style="animation-delay:0.55s">
+          <button class="btn-primary" onclick="switchTab('products')">
+            Смотреть товары
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+          <button class="btn-ghost" style="width:auto;" onclick="switchTab('reviews')">
+            Отзывы клиентов
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIKTOK PROMO ALERT LINE -->
+  <div class="bg-gradient-to-r from-orange-600 to-orange-500 py-3 text-center border-y border-orange-400/20 shadow-lg relative z-10">
+    <p class="font-display font-black text-white uppercase tracking-wider text-sm sm:text-base animate-pulse">
+      🔥 Если закажете, ваши кроссовки будут в Тиктоке! 🎥
+    </p>
+  </div>
+
+  <!-- STATS -->
+  <div class="bg-dark-800 border-b border-white/[0.06]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 stagger-grid">
+
+        <div class="animate-fiu text-center">
+          <div class="stat-num">2+</div>
+          <div class="text-gray-400 text-sm mt-1 font-body">года на рынке</div>
+        </div>
+
+        <div class="animate-fiu text-center">
+          <div class="stat-num">400+</div>
+          <div class="text-gray-400 text-sm mt-1 font-body">довольных клиентов</div>
+        </div>
+
+        <div class="animate-fiu text-center">
+          <div class="stat-num">50+</div>
+          <div class="text-gray-400 text-sm mt-1 font-body">моделей товаров</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT US -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <p class="text-orange-500 text-sm font-body font-semibold uppercase tracking-widest mb-3">О нас</p>
+        <h2 class="section-title text-white mb-6">
+          МЫ ЖИВЁМ <span class="accent">БАСКЕТБОЛОМ</span>
+        </h2>
+        <p class="text-gray-400 font-body leading-relaxed mb-4">
+          <strong class="text-white">Piko Store</strong> — это онлайн-магазин для тех, кто серьёзно относится к игре. Мы собираем лучшую баскетбольную экипировку: от стильных шортов и футболок до рюкзаков и обуви.
+        </p>
+        <p class="text-gray-400 font-body leading-relaxed mb-4">
+          Каждый товар в нашем ассортименте проверен игроками. Мы знаем, что важна не только эстетика, но и функциональность — поэтому выбираем только то, в чём комфортно играть и тренироваться.
+        </p>
+        <p class="text-gray-400 font-body leading-relaxed">
+          За 2+ года работы мы помогли более чем 400 клиентам найти именно то, что им нужно для площадки и жизни за её пределами.
+        </p>
+      </div>
+
+      <div class="relative">
+        <div class="aspect-video bg-dark-700 rounded-2xl overflow-hidden border border-white/[0.06] flex items-center justify-center relative">
+          <div style="position:absolute;inset:0;background:radial-gradient(circle at 60% 40%, rgba(255,96,0,0.15) 0%, transparent 70%)"></div>
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" opacity="0.2">
+            <circle cx="60" cy="60" r="55" stroke="#FF6000" stroke-width="3"/>
+            <path d="M60 5 C60 5 40 30 40 60 C40 90 60 115 60 115" stroke="#FF6000" stroke-width="3" fill="none"/>
+            <path d="M60 5 C60 5 80 30 80 60 C80 90 60 115 60 115" stroke="#FF6000" stroke-width="3" fill="none"/>
+            <path d="M5 60 L115 60" stroke="#FF6000" stroke-width="3"/>
+            <path d="M10 35 Q60 50 110 35" stroke="#FF6000" stroke-width="2" fill="none"/>
+            <path d="M10 85 Q60 70 110 85" stroke="#FF6000" stroke-width="2" fill="none"/>
+          </svg>
+          <div class="absolute bottom-4 left-4 right-4 text-center">
+            <p class="font-display font-black text-2xl text-white/20 uppercase tracking-widest">PIKO STORE</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADVANTAGES -->
+  <div class="bg-dark-800 border-y border-white/[0.06]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+      <div class="text-center mb-12">
+        <p class="text-orange-500 text-sm font-body font-semibold uppercase tracking-widest mb-3">Почему мы</p>
+        <h2 class="section-title text-white">НАШИ <span class="accent">ПРЕИМУЩЕСТВА</span></h2>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-grid">
+
+        <div class="adv-card animate-fiu">
+          <div class="adv-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white uppercase mb-2">Доставка</h3>
+          <p class="text-gray-500 font-body text-sm leading-relaxed">Быстро отправляем заказы в любые регионы. Работаем по всему Казахстану.</p>
+        </div>
+
+        <div class="adv-card animate-fiu">
+          <div class="adv-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+              <line x1="7" y1="7" x2="7.01" y2="7"/>
+            </svg>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white uppercase mb-2">Выгодные цены</h3>
+          <p class="text-gray-500 font-body text-sm leading-relaxed">Стильная экипировка без лишних переплат. Регулярные акции для постоянных клиентов.</p>
+        </div>
+
+        <div class="adv-card animate-fiu">
+          <div class="adv-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white uppercase mb-2">Надежность</h3>
+          <p class="text-gray-500 font-body text-sm leading-relaxed">Каждый товар тщательно проверяется перед отправкой. Возврат и обмен без лишних вопросов.</p>
+        </div>
+
+        <div class="adv-card animate-fiu">
+          <div class="adv-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white uppercase mb-2">Поддержка 7/7</h3>
+          <p class="text-gray-500 font-body text-sm leading-relaxed">Отвечаем на все вопросы в мессенджерах. Помогаем с выбором размера и модели.</p>
+        </div>
+
+        <div class="adv-card animate-fiu">
+          <div class="adv-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white uppercase mb-2">Большой выбор</h3>
+          <p class="text-gray-500 font-body text-sm leading-relaxed">Популярные и востребованные модели. Постоянно обновляем ассортимент свежими поступлениями.</p>
+        </div>
+
+        <div class="adv-card animate-fiu">
+          <div class="adv-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white uppercase mb-2">Безопасная оплата</h3>
+          <p class="text-gray-500 font-body text-sm leading-relaxed">Принимаем Kaspi, перевод на карту. Предоставляем фото товара перед отправкой.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-dark-900 border-t border-white/[0.06]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+      <div class="grid sm:grid-cols-3 gap-10 mb-10">
+
+        <!-- Brand -->
+        <div>
+          <div class="font-display font-black text-2xl text-white uppercase tracking-widest mb-3">
+            Piko<span class="text-orange-500">.</span>Store
+          </div>
+          <p class="text-gray-500 text-sm font-body leading-relaxed">
+            Баскетбольная экипировка и аксессуары. Шымкент, Казахстан.
+          </p>
+        </div>
+
+        <!-- Contacts -->
+        <div>
+          <h4 class="font-display font-bold text-white uppercase tracking-wider mb-4">Контакты</h4>
+          <ul class="space-y-2 text-gray-500 text-sm font-body">
+            <li class="flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              +7 702 632 16 07
+            </li>
+            <li class="flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Шымкент, Казахстан
+            </li>
+          </ul>
+        </div>
+
+        <!-- Social -->
+        <div>
+          <h4 class="font-display font-bold text-white uppercase tracking-wider mb-4">Мы в соцсетях</h4>
+          <div class="footer-social flex gap-3 flex-wrap">
+            <a href="https://www.tiktok.com/@sport.store0?_r=1&_t=ZS-96sde6MTfLU" target="_blank" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.29 8.29 0 0 0 4.85 1.56V6.78a4.85 4.85 0 0 1-1.08-.09z"/>
+              </svg>
+            </a>
+            <a href="#" aria-label="Telegram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+              </svg>
+            </a>
+            <a href="https://wa.me/77026321607?text=Здравствуйте!%20Хочу%20сделать%20заказ." target="_blank" aria-label="WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="divider pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-gray-600 text-xs font-body">© 2024–2026 Piko Store. Все права защищены.</p>
+        <p class="text-gray-700 text-xs font-body">Шымкент, Казахстан</p>
+      </div>
+    </div>
+  </footer>
+
+</section>
+
+<!-- ===================== TAB 2: ТОВАРЫ ===================== -->
+<section id="tab-products" class="tab-panel" role="tabpanel">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+
+    <div class="mb-12">
+      <p class="text-orange-500 text-sm font-body font-semibold uppercase tracking-widest mb-2">Каталог</p>
+      <h2 class="section-title text-white">НАШИ <span class="accent">ТОВАРЫ</span></h2>
+    </div>
+
+    <!-- ── CATEGORY: Тапки и Кроксы ── -->
+    <div class="mb-14">
+      <div class="flex items-center gap-4 mb-6">
+        <h3 class="font-display font-bold text-2xl text-white uppercase tracking-wide">Тапки и Кроксы</h3>
+        <div class="flex-1 h-px bg-white/[0.07]"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-grid">
+
+        <!-- Card: Crocs -->
+        <div class="product-card animate-fiu">
+          <div class="product-img-wrap">
+            <img src="tovar5.jpeg" alt="Crocs"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>crocs.jpg</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <span class="category-pill mb-2">Тапки и Кроксы</span>
+            <h4 class="font-display font-bold text-lg text-white uppercase mt-2 mb-1">Crocs</h4>
+            <p class="text-orange-500 font-display font-bold text-xl mb-4">9 290 ₸</p>
+            <a href="https://wa.me/77026321607?text=Здравствуйте!%20Хочу%20заказать%20Crocs." target="_blank" class="btn-ghost">Заказать</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── CATEGORY: Рюкзаки ── -->
+    <div class="mb-14">
+      <div class="flex items-center gap-4 mb-6">
+        <h3 class="font-display font-bold text-2xl text-white uppercase tracking-wide">Рюкзаки</h3>
+        <div class="flex-1 h-px bg-white/[0.07]"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-grid">
+
+        <!-- Card: Nike Elite Bag V2 -->
+        <div class="product-card animate-fiu">
+          <div class="product-img-wrap">
+            <img src="tovar7.jpeg" alt="Nike Elite Bag V2"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>nike-elite-bag-v2.jpg</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <span class="category-pill mb-2">Рюкзаки</span>
+            <h4 class="font-display font-bold text-lg text-white uppercase mt-2 mb-1">Nike Elite Bag V2</h4>
+            <p class="text-orange-500 font-display font-bold text-xl mb-4">8 780 ₸</p>
+            <a href="https://wa.me/77026321607?text=Здравствуйте!%20Хочу%20заказать%20рюкзак%20Nike%20Elite%20Bag%20V2." target="_blank" class="btn-ghost">Заказать</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── CATEGORY: Баскетбольные вещи ── -->
+    <div class="mb-14">
+      <div class="flex items-center gap-4 mb-6">
+        <h3 class="font-display font-bold text-2xl text-white uppercase tracking-wide">Баскетбольные вещи</h3>
+        <div class="flex-1 h-px bg-white/[0.07]"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-grid">
+
+        <!-- Card: EE Shorts -->
+        <div class="product-card animate-fiu">
+          <div class="product-img-wrap">
+            <img src="tovar2.jpeg" alt="EE Shorts"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>ee-shorts.jpg</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <span class="category-pill mb-2">Баскетбольные вещи</span>
+            <h4 class="font-display font-bold text-lg text-white uppercase mt-2 mb-1">EE Shorts</h4>
+            <p class="text-orange-500 font-display font-bold text-xl mb-4">3 780 – 4 190 ₸</p>
+            <a href="https://wa.me/77026321607?text=Здравствуйте!%20Хочу%20заказать%20шорты%20EE%20Shorts." target="_blank" class="btn-ghost">Заказать</a>
+          </div>
+        </div>
+
+        <!-- Card: Jordan Shorts -->
+        <div class="product-card animate-fiu">
+          <div class="product-img-wrap">
+            <img src="tovar1.jpeg" alt="Jordan Shorts"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>jordan-shorts.jpg</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <span class="category-pill mb-2">Баскетбольные вещи</span>
+            <h4 class="font-display font-bold text-lg text-white uppercase mt-2 mb-1">Jordan Shorts</h4>
+            <p class="text-orange-500 font-display font-bold text-xl mb-4">6 190 ₸</p>
+            <a href="https://wa.me/77026321607?text=Здравствуйте!%20Хочу%20заказать%20шорты%20Jordan%20Shorts." target="_blank" class="btn-ghost">Заказать</a>
+          </div>
+        </div>
+
+        <!-- Card: Nike Dri-Fit Tee -->
+        <div class="product-card animate-fiu">
+          <div class="product-img-wrap">
+            <img src="tovar6.jpeg" alt="Nike Dri-Fit Tee"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>nike-dri-fit-tee.jpg</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <span class="category-pill mb-2">Баскетбольные вещи</span>
+            <h4 class="font-display font-bold text-lg text-white uppercase mt-2 mb-1">Nike Dri-Fit Tee</h4>
+            <p class="text-orange-500 font-display font-bold text-xl mb-4">4 390 ₸</p>
+            <a href="https://wa.me/77026321607?text=Здравствуйте!%20Хочу%20заказать%20футболку%20Nike%20Dri-Fit%20Tee." target="_blank" class="btn-ghost">Заказать</a>
+          </div>
+        </div>
+
+        <!-- Card: Nike Bottle -->
+        <div class="product-card animate-fiu">
+          <div class="product-img-wrap">
+            <img src="tovar3.jpeg" alt="Nike Bottle"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="img-placeholder">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>nike-bottle.jpg</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <span class="category-pill mb-2">Баскетбольные вещи</span>
+            <h4 class="font-display font-bold text-lg text-white uppercase mt-2 mb-1">Nike Bottle</h4>
+            <p class="text-orange-500 font-display font-bold text-xl mb-4">4 390 ₸</p>
+            <a href="https://wa.me/77026321607?text=Здравствуйте!%20Хочу%20заказать%20бутылку%20Nike%20Bottle." target="_blank" class="btn-ghost">Заказать</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PRE-ORDER INFO BLOCK ── -->
+    <div class="mt-16 bg-gradient-to-br from-dark-800 to-dark-700 border border-orange-500/30 rounded-2xl p-6 sm:p-10 text-center max-w-3xl mx-auto shadow-2xl relative overflow-hidden">
+      <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <span class="category-pill bg-orange-500/20 text-orange-400 mb-4 inline-block px-4 py-1 rounded-full text-xs font-bold tracking-widest">РАБОТАЕМ НА ПРЕДЗАКАЗ</span>
+      <h3 class="font-display font-black text-2xl sm:text-4xl text-white uppercase tracking-wide mb-4">
+        НЕ НАШЛИ ТО, ЧТО <span class="text-orange-500">ИСКАЛИ?</span>
+      </h3>
+      <p class="text-gray-300 font-body text-sm sm:text-base leading-relaxed mb-6 max-w-xl mx-auto">
+        Это далеко не все товары! Мы привозим любую баскетбольную экипировку и кроссовки под индивидуальный заказ. Просто отправьте нам то, что вам нужно — а мы найдем и доставим.
+      </p>
+
+      <!-- Steps Info -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left mb-8 text-xs sm:text-sm font-body border-y border-white/[0.05] py-6 my-4">
+        <div class="flex gap-3 items-start">
+          <div class="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-500 font-bold shrink-0 text-xs">1</div>
+          <p class="text-gray-400"><strong class="text-white block mb-0.5">Вы скидываете вещь:</strong> Фото, название или ссылку на модель.</p>
+        </div>
+        <div class="flex gap-3 items-start">
+          <div class="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-500 font-bold shrink-0 text-xs">2</div>
+          <p class="text-gray-400"><strong class="text-white block mb-0.5">Мы находим её:</strong> Рассчитываем точную стоимость и сроки.</p>
+        </div>
+        <div class="flex gap-3 items-start">
+          <div class="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-500 font-bold shrink-0 text-xs">3</div>
+          <p class="text-gray-400"><strong class="text-white block mb-0.5">Оформляем заказ:</strong> Быстро выкупаем и везем в Казахстан.</p>
+        </div>
+      </div>
+
+      <a href="https://wa.me/77026321607?text=Здравствуйте!%20Я%20хочу%20скинуть%20модель%20для%20поиска%20и%20предзаказа." target="_blank" class="btn-primary">
+        Связаться и заказать модель
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================== TAB 3: ОТЗЫВЫ ===================== -->
+<section id="tab-reviews" class="tab-panel" role="tabpanel">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+
+    <div class="mb-12">
+      <p class="text-orange-500 text-sm font-body font-semibold uppercase tracking-widest mb-2">Клиенты о нас</p>
+      <h2 class="section-title text-white">ОТЗЫВЫ <span class="accent">ПОКУПАТЕЛЕЙ</span></h2>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-20 stagger-grid" id="reviewsGrid">
+
+  <!-- Отзыв 1 -->
+  <div class="review-card animate-fiu">
+    <img src="otziv/1.jpeg" alt="Отзыв 1" class="review-screenshot" 
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+    <!-- Эта заглушка сработает АВТОМАТИЧЕСКИ, если картинка review-1.jpg не найдеться или не загрузится -->
+    <div class="review-placeholder">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>review-1.jpg</span>
+      <span style="font-size:0.65rem;color:#333">картинка не найдена</span>
+    </div>
+  </div>
+
+  <!-- Отзыв 2 -->
+  <div class="review-card animate-fiu">
+    <img src="otziv/2.jpeg" alt="Отзыв 2" class="review-screenshot" 
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+    <div class="review-placeholder">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>review-2.jpg</span>
+      <span style="font-size:0.65rem;color:#333">картинка не найдена</span>
+    </div>
+  </div>
+
+  <!-- Отзыв 3 -->
+  <div class="review-card animate-fiu">
+    <img src="otziv/3.jpeg" alt="Отзыв 3" class="review-screenshot" 
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+    <div class="review-placeholder">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>review-3.jpg</span>
+      <span style="font-size:0.65rem;color:#333">картинка не найдена</span>
+    </div>
+  </div>
+
+  <!-- Отзыв 4 -->
+  <div class="review-card animate-fiu">
+    <img src="otziv/4.jpeg" alt="Отзыв 4" class="review-screenshot" 
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+    <div class="review-placeholder">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>review-4.jpg</span>
+      <span style="font-size:0.65rem;color:#333">картинка не найдена</span>
+    </div>
+  </div>
+
+</div>
+
+    <!-- ── REVIEW FORM ── -->
+    <div class="max-w-xl mx-auto">
+      <div class="bg-dark-800 border border-white/[0.07] rounded-2xl p-6 sm:p-8">
+        <h3 class="font-display font-bold text-2xl text-white uppercase mb-1">Оставить отзыв</h3>
+        <p class="text-gray-500 text-sm font-body mb-6">Расскажите о своём опыте покупки в Piko Store</p>
+
+        <div class="space-y-4">
+
+          <div>
+            <label class="block text-gray-400 text-xs font-body uppercase tracking-wider mb-1.5">Ваше имя</label>
+            <input type="text" id="reviewName" class="form-input" placeholder="Алибек" />
+          </div>
+
+          <div>
+            <label class="block text-gray-400 text-xs font-body uppercase tracking-wider mb-1.5">Оценка</label>
+            <div class="star-rating" id="starRating" aria-label="Выберите оценку">
+              <span class="star" data-value="1" role="button" aria-label="1 звезда">★</span>
+              <span class="star" data-value="2" role="button" aria-label="2 звезды">★</span>
+              <span class="star" data-value="3" role="button" aria-label="3 звезды">★</span>
+              <span class="star" data-value="4" role="button" aria-label="4 звезды">★</span>
+              <span class="star" data-value="5" role="button" aria-label="5 звёзд">★</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-400 text-xs font-body uppercase tracking-wider mb-1.5">Ваш отзыв</label>
+            <textarea id="reviewText" class="form-input" placeholder="Всё понравилось! Качественный товар, быстрая доставка..."></textarea>
+          </div>
+
+          <button class="btn-primary w-full justify-center" onclick="submitReview()">
+            Отправить отзыв
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================== TOAST ===================== -->
+<div class="toast" id="toast"></div>
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+  // TAB SWITCHING
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanels  = document.querySelectorAll('.tab-panel');
+
+  function switchTab(tabId) {
+    tabButtons.forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-selected', 'false');
+    });
+    tabPanels.forEach(panel => panel.classList.remove('active'));
+
+    const activeBtn   = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    const activePanel = document.getElementById(`tab-${tabId}`);
+
+    if (activeBtn)   { activeBtn.classList.add('active'); activeBtn.setAttribute('aria-selected', 'true'); }
+    if (activePanel) {
+      activePanel.classList.add('active');
+      restartAnimations(activePanel);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  function restartAnimations(panel) {
+    const animated = panel.querySelectorAll('.animate-fiu');
+    animated.forEach(el => {
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = '';
+    });
+  }
+
+  // STAR RATING
+  let selectedRating = 0;
+  const stars = document.querySelectorAll('.star');
+
+  stars.forEach(star => {
+    star.addEventListener('mouseover', () => highlightStars(+star.dataset.value));
+    star.addEventListener('mouseout',  () => highlightStars(selectedRating));
+    star.addEventListener('click',     () => {
+      selectedRating = +star.dataset.value;
+      highlightStars(selectedRating);
+    });
+  });
+
+  function highlightStars(count) {
+    stars.forEach((s, i) => s.classList.toggle('active', i < count));
+  }
+
+  // TOAST NOTIFICATION
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // SUBMIT REVIEW
+  function submitReview() {
+    const name   = document.getElementById('reviewName').value.trim();
+    const text   = document.getElementById('reviewText').value.trim();
+
+    if (!name) { showToast('⚠ Введите ваше имя'); return; }
+    if (!selectedRating) { showToast('⚠ Поставьте оценку'); return; }
+    if (!text) { showToast('⚠ Напишите текст отзыва'); return; }
+
+    document.getElementById('reviewName').value = '';
+    document.getElementById('reviewText').value = '';
+    selectedRating = 0;
+    highlightStars(0);
+
+    showToast('🙏 Спасибо за ваш отзыв!');
+  }
+</script>
+</body>
+</html>
